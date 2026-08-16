@@ -16,7 +16,7 @@ jobs:
           node-version: '20'
       - run: npm install
         working-directory: backend
-      - run: npm test
+      - run: npm test        # runs the shared matcher suite
         working-directory: backend
 
   ml-test:
@@ -38,6 +38,6 @@ jobs:
     needs: [test, ml-test]   # images are only built if every test job passes
     steps:
       - uses: actions/checkout@v4
-      - run: docker build -t jobfit-backend:${{ github.sha }} ./backend
-      - run: docker build -t jobfit-frontend:${{ github.sha }} ./frontend
+      - run: docker build -f backend/Dockerfile -t jobfit-backend:${{ github.sha }} .
+      - run: docker build -f frontend/Dockerfile -t jobfit-frontend:${{ github.sha }} .
       - run: docker build -t jobfit-ml:${{ github.sha }} ./ml

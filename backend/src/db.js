@@ -1,4 +1,6 @@
 import pg from 'pg';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 
 const { Pool } = pg;
 
@@ -10,30 +12,11 @@ export const pool = new Pool({
   database: process.env.PGDATABASE || 'jobfit',
 });
 
-const SEED_SKILLS = [
-  ['Python', 'language', []],
-  ['Java', 'language', []],
-  ['JavaScript', 'language', ['js']],
-  ['C++', 'language', ['cpp']],
-  ['SQL', 'database', []],
-  ['React', 'frontend', ['react.js', 'reactjs']],
-  ['Node.js', 'backend', ['node', 'nodejs']],
-  ['REST APIs', 'backend', ['rest api', 'rest']],
-  ['Docker', 'devops', []],
-  ['Kubernetes', 'devops', ['k8s']],
-  ['Git', 'devops', []],
-  ['CI/CD', 'devops', ['ci cd', 'continuous integration']],
-  ['GitHub Actions', 'devops', []],
-  ['PostgreSQL', 'database', ['postgres']],
-  ['NoSQL', 'database', []],
-  ['Agile', 'process', ['scrum']],
-  ['Data Structures', 'fundamentals', []],
-  ['Algorithms', 'fundamentals', []],
-  ['Debugging', 'fundamentals', []],
-  ['Testing', 'fundamentals', ['unit testing']],
-  ['Machine Learning', 'ml', ['ml', 'ai/ml']],
-  ['Cloud', 'cloud', ['cloud computing', 'gcp', 'aws', 'azure']],
-];
+// Single source of truth, shared with the browser build so the static demo
+// and the API can never drift apart.
+const SEED_SKILLS = JSON.parse(
+  readFileSync(new URL('../../shared/skills.json', import.meta.url), 'utf8')
+);
 
 /** Create the table if it does not exist, then seed it once. */
 export async function initDb() {
@@ -49,7 +32,7 @@ export async function initDb() {
   const { rows } = await pool.query('SELECT COUNT(*)::int AS n FROM skills');
   if (rows[0].n > 0) return;
 
-  for (const [name, category, aliases] of SEED_SKILLS) {
+  for (const { name, category, aliases } of SEED_SKILLS) {
     await pool.query(
       'INSERT INTO skills (name, category, aliases) VALUES ($1, $2, $3) ON CONFLICT (name) DO NOTHING',
       [name, category, aliases]

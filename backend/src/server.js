@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import { initDb, getSkills } from './db.js';
-import { matchSkills } from './matcher.js';
+import { matchSkills } from '../../shared/matcher.js';
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3001;

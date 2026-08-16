@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { tokenize, buildNgramSet, matchSkills } from '../src/matcher.js';
+import { tokenize, buildNgramSet, matchSkills } from './matcher.js';
 
 const SKILLS = [
   { name: 'Python', category: 'language', aliases: [] },

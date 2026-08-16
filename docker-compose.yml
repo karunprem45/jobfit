@@ -20,7 +20,9 @@ services:
       - "8001:8000"
 
   backend:
-    build: ./backend
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
     environment:
       ML_URL: http://ml:8000
       PGHOST: db
@@ -37,7 +39,9 @@ services:
       - "3001:3001"
 
   frontend:
-    build: ./frontend
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
     depends_on:
       - backend
     ports:

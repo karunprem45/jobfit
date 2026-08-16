@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { matchSkills } from '../../shared/matcher.js';
+import skills from '../../shared/skills.json';
 
 const API = import.meta.env.VITE_API_URL || '/api';
 
@@ -6,6 +8,7 @@ export default function App() {
   const [jdText, setJdText] = useState('');
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [offline, setOffline] = useState(false);
   const [error, setError] = useState(null);
 
   async function handleMatch() {
@@ -21,9 +24,14 @@ export default function App() {
 
       if (!res.ok) throw new Error(`Request failed: ${res.status}`);
       setResult(await res.json());
-    } catch (err) {
-      setError(err.message);
-      setResult(null);
+      setOffline(false);
+    } catch {
+      // No API reachable — this is the GitHub Pages build, or the backend is
+      // down. The exact matcher is dependency-free JavaScript, so run the same
+      // module here in the browser against the same skills catalog.
+      // Semantic matching needs the Python service, so it is simply absent.
+      setResult(matchSkills(jdText, skills));
+      setOffline(true);
     } finally {
       setLoading(false);
     }
@@ -52,6 +60,14 @@ export default function App() {
           <div className="score">
             <strong>{result.score}%</strong> of your skills appear in this JD
           </div>
+
+          {offline && (
+            <p className="banner">
+              Running the exact matcher in your browser — no backend attached.
+              Semantic matching needs the Python service, so run the full stack
+              with <code>docker compose up</code> to see implied skills.
+            </p>
+          )}
 
           <SkillList title={`Matched (${result.matched.length})`} skills={result.matched} tone="hit" />
 
