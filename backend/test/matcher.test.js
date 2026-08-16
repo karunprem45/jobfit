@@ -17,6 +17,19 @@ test('tokenize keeps C++ and CI/CD style tokens readable', () => {
   assert.deepEqual(tokenize('C++ and CI/CD'), ['c++', 'and', 'ci', 'cd']);
 });
 
+test('tokenize trims sentence punctuation but keeps it inside a token', () => {
+  // "C++." ends a sentence — the period is not part of the skill name.
+  assert.deepEqual(tokenize('we use C++. and Node.js too'), [
+    'we', 'use', 'c++', 'and', 'node.js', 'too',
+  ]);
+});
+
+test('matchSkills finds a skill at the end of a sentence', () => {
+  const skills = [{ name: 'C++', category: 'language', aliases: [] }];
+  const { matched } = matchSkills('Languages: Python, Java, C++.', skills);
+  assert.deepEqual(matched.map((s) => s.name), ['C++']);
+});
+
 test('buildNgramSet captures multi-word phrases', () => {
   const set = buildNgramSet('we use github actions daily');
   assert.ok(set.has('github'));

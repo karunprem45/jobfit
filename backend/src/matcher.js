@@ -14,12 +14,20 @@
 
 const MAX_PHRASE_WORDS = 3;
 
-/** Lowercase, strip punctuation, split on whitespace. */
+/**
+ * Lowercase, strip punctuation, split on whitespace.
+ *
+ * We keep `+ # . -` because they carry meaning inside skill names
+ * (c++, c#, node.js, ci-cd). But a trailing one is almost always sentence
+ * punctuation — "C++." at the end of a list should still match "C++" — so
+ * those get trimmed from each token's edges.
+ */
 export function tokenize(text) {
   return text
     .toLowerCase()
     .replace(/[^a-z0-9+#.\s-]/g, ' ')
     .split(/\s+/)
+    .map((tok) => tok.replace(/^[.\-]+/, '').replace(/[.\-]+$/, ''))
     .filter(Boolean);
 }
 
