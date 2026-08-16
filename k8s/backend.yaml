@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+spec:
+  # Two replicas: if one pod dies, the Service keeps routing to the other.
+  replicas: 2
+  selector:
+    matchLabels: { app: backend }
+  template:
+    metadata:
+      labels: { app: backend }
+    spec:
+      containers:
+        - name: backend
+          image: jobfit-backend:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - { name: PGHOST,     value: db }
+            - { name: PGUSER,     value: jobfit }
+            - { name: PGPASSWORD, value: jobfit }
+            - { name: PGDATABASE, value: jobfit }
+          ports:
+            - containerPort: 3001
+          # Kubernetes restarts the pod if this fails, and holds traffic
+          # back until readiness passes.
+          livenessProbe:
+            httpGet: { path: /api/health, port: 3001 }
+            initialDelaySeconds: 10
+          readinessProbe:
+            httpGet: { path: /api/health, port: 3001 }
+            initialDelaySeconds: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+spec:
+  selector: { app: backend }
+  ports:
+    - port: 3001
+      targetPort: 3001

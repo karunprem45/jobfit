@@ -1,0 +1,16 @@
+Software Developer Intern 2027 - IBM
+
+Support the design, development, testing, and debugging of software in
+front-end, back-end, or full-stack environments. Work with a variety of
+programming languages depending on the project (examples: Python, Java,
+JavaScript, TypeScript, C++, Go, Rust, Swift, Kotlin, or others). Help build
+user interfaces using frameworks like React or contribute to back-end services
+and APIs. Use Git and other version-control and collaboration tools. Work with
+cloud and container technologies such as Docker, Kubernetes, and REST APIs.
+Participate in Agile ceremonies, code reviews, and technical discussions.
+Explore emerging technologies, including AI/ML, automation, and cloud-native
+development.
+
+Preferred: experience with cloud services (IBM Cloud, AWS, Azure, or GCP),
+familiarity with REST APIs and databases (relational or NoSQL), exposure to
+CI/CD pipelines or automation tools, understanding of Agile development.

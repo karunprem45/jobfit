@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    name: Backend tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm install
+        working-directory: backend
+      - run: npm test
+        working-directory: backend
+
+  build:
+    name: Build images
+    runs-on: ubuntu-latest
+    needs: test          # images are only built if the tests pass
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t jobfit-backend:${{ github.sha }} ./backend
+      - run: docker build -t jobfit-frontend:${{ github.sha }} ./frontend
