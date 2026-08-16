@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ml
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: ml }
+  template:
+    metadata:
+      labels: { app: ml }
+    spec:
+      containers:
+        - name: ml
+          image: jobfit-ml:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+          # scikit-learn needs a moment to import, so readiness waits longer
+          # than the Node service does.
+          readinessProbe:
+            httpGet: { path: /health, port: 8000 }
+            initialDelaySeconds: 8
+          resources:
+            requests: { memory: "256Mi", cpu: "100m" }
+            limits:   { memory: "512Mi" }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ml
+spec:
+  selector: { app: ml }
+  ports:
+    - port: 8000
+      targetPort: 8000

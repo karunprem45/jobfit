@@ -16,6 +16,7 @@ spec:
           image: jobfit-backend:latest
           imagePullPolicy: IfNotPresent
           env:
+            - { name: ML_URL,     value: "http://ml:8000" }
             - { name: PGHOST,     value: db }
             - { name: PGUSER,     value: jobfit }
             - { name: PGPASSWORD, value: jobfit }

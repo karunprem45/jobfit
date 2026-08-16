@@ -12,9 +12,17 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
+  ml:
+    build: ./ml
+    # Internal service — the backend reaches it as http://ml:8000 over the
+    # compose network. Host port 8001 is exposed only for local debugging.
+    ports:
+      - "8001:8000"
+
   backend:
     build: ./backend
     environment:
+      ML_URL: http://ml:8000
       PGHOST: db
       PGUSER: jobfit
       PGPASSWORD: jobfit
@@ -23,6 +31,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      ml:
+        condition: service_started
     ports:
       - "3001:3001"
 
