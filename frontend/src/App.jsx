@@ -54,6 +54,23 @@ export default function App() {
           </div>
 
           <SkillList title={`Matched (${result.matched.length})`} skills={result.matched} tone="hit" />
+
+          {result.related?.length > 0 && (
+            <div className="list related">
+              <h2>Implied ({result.related.length})</h2>
+              <p className="hint">
+                Not named literally, but the JD describes them.
+              </p>
+              <ul>
+                {result.related.map((r) => (
+                  <li key={r.name} title={r.evidence}>
+                    {r.name} <span className="cat">{r.similarity}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
           <SkillList title={`Not mentioned (${result.missing.length})`} skills={result.missing} tone="miss" />
         </section>
       )}

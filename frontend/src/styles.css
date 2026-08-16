@@ -17,3 +17,5 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 .hit li { background: #16a34a22; }
 .miss li { background: #8881; opacity: 0.75; }
 .cat { opacity: 0.55; font-size: 0.8em; margin-left: 0.3rem; }
+.related li { background: #f59e0b22; }
+.hint { margin: 0 0 0.5rem; font-size: 0.85rem; opacity: 0.6; }

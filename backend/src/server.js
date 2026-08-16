@@ -22,6 +22,41 @@ app.get('/api/skills', async (_req, res, next) => {
   }
 });
 
+const ML_URL = process.env.ML_URL || 'http://ml:8000';
+
+/**
+ * Ask the Python service which of the unmatched skills are *semantically*
+ * present — a JD saying "containerization" implies Docker without naming it.
+ *
+ * This is an enhancement, not a dependency. If the ML service is slow or down
+ * we return an empty list and the caller still gets exact-match results, so a
+ * failure here degrades the response instead of breaking it.
+ */
+async function fetchSemanticMatches(jdText, missingSkills) {
+  if (missingSkills.length === 0) return [];
+
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 3000);
+
+    const res = await fetch(`${ML_URL}/semantic-match`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ jd_text: jdText, skills: missingSkills }),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeout);
+    if (!res.ok) return [];
+
+    const data = await res.json();
+    return data.related ?? [];
+  } catch (err) {
+    console.warn('semantic matching unavailable:', err.message);
+    return [];
+  }
+}
+
 app.post('/api/match', async (req, res, next) => {
   try {
     const { jdText } = req.body;
@@ -32,7 +67,16 @@ app.post('/api/match', async (req, res, next) => {
 
     const skills = await getSkills();
     const result = matchSkills(jdText, skills);
-    res.json(result);
+
+    const related = await fetchSemanticMatches(jdText, result.missing);
+    const relatedNames = new Set(related.map((r) => r.name));
+
+    res.json({
+      ...result,
+      related,
+      // Anything neither exactly nor semantically present is a genuine gap.
+      missing: result.missing.filter((s) => !relatedNames.has(s.name)),
+    });
   } catch (err) {
     next(err);
   }

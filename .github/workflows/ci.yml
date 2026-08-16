@@ -19,11 +19,25 @@ jobs:
       - run: npm test
         working-directory: backend
 
+  ml-test:
+    name: ML service tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt pytest
+        working-directory: ml
+      - run: pytest -q
+        working-directory: ml
+
   build:
     name: Build images
     runs-on: ubuntu-latest
-    needs: test          # images are only built if the tests pass
+    needs: [test, ml-test]   # images are only built if every test job passes
     steps:
       - uses: actions/checkout@v4
       - run: docker build -t jobfit-backend:${{ github.sha }} ./backend
       - run: docker build -t jobfit-frontend:${{ github.sha }} ./frontend
+      - run: docker build -t jobfit-ml:${{ github.sha }} ./ml
